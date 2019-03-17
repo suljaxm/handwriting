@@ -1,8 +1,14 @@
 # HandWriting
 Handwriting optimization based on Bessel algorithm
 ---
+[//]: # (Image References)
+
+[image1]: ./examples/demo.png "demo_show"
+
+
 ### Overview
 This is a writing algorithm based on python, which can imitate human handwriting.
+![alt text][image1]
 ### Dependencies
 This project requires **Python 3.5** and the following Python libraries installed:
 
