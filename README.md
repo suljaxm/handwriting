@@ -3,7 +3,7 @@ Handwriting optimization based on Bessel algorithm
 ---
 [//]: # (Image References)
 
-[image1]: ./examples/demo.png "demo_show"
+[image1]: ./example/demo.png "demo_show"
 
 
 ### Overview
