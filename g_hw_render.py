@@ -24,20 +24,20 @@ def insert_first(x, y):
         # print("m_cur_path不为空")
         m_cur_path = None
 
-    m_cur_path = z_math.z_fpoint_arraylist_append_new(m_arr_listm, m_w_max, m_w_min)
-    z_math.z_insert_point(m_cur_path, point)
+    m_cur_path = z_math.z_fpoint_arraylist_append_new(m_w_max, m_w_min)
+    z_math.z_insert_point(m_cur_path, point)    #将点point加入笔迹m_cur_path中
 
 
 # 中间获取的坐标点
 def insert(x, y):
     global m_cur_path, m_cur_path1
 
-    point = z_math.z_point_s(x, y)
+    point = z_math.z_point_s(x, y) #中间点
     if m_cur_path is None:
         print("m_cur_path为空")
-        m_cur_path = (z_math.z_fpoint_arraylist_append_new(m_arr_listm, m_w_max, m_w_min))
+        m_cur_path = z_math.z_fpoint_arraylist_append_new(m_w_max, m_w_min)
 
-    z_math.z_insert_point(m_cur_path, point)
+    z_math.z_insert_point(m_cur_path, point) #将中间点插入笔迹m_cur_path中
 
     m_cur_path1 = m_cur_path
 
@@ -49,7 +49,7 @@ def insert_last(x, y):
     if m_cur_path is None: return
     point = z_math.z_point_s(x, y)
 
-    z_math.z_insert_last_point(m_cur_path, point)
+    z_math.z_insert_last_point(m_cur_path, point) #将点point插入笔迹m_cur_path，进行收尾
 
     m_cur_path1 = m_cur_path
 
