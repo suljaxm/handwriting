@@ -8,9 +8,10 @@ import time
 
 #点的坐标
 class z_point_s:
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0, y=0, w=0, t=0):
         self.x = x
         self.y = y
+        self.w = w
 
 #点的坐标+宽度
 class z_fpoint_s:
@@ -60,34 +61,12 @@ class z_bezier_factors_s:  # 暂时没有使用
         self.max_move_speed = max_move_speed
         self.max_linewith = max_linewith
 
-
 def z_square(f):
     return f * f
 
 
-def z_cubic(f):
-    return f * f * f
-
-
-def z_point_equals(p1, p2):
-    if (p1.x == p2.x and p1.y == p2.y):
-        return 1
-    return 0
-
-
-def z_keep_fpoint_array(a=z_fpoint_array_s()):
-    a.ref = a.ref + 1
-    return a
-
-
-def z_drop_fpoint_array(a):  # 缺少对ref的操作
-    a = None
-
-
-
 defualt_max_width = 5.0
 default_min_width = 1.0
-
 
 def z_new_fpoint_array(initsize, maxwidth, minwidth):
     if initsize <= 0: return 0
@@ -105,10 +84,8 @@ def z_new_fpoint_array(initsize, maxwidth, minwidth):
     a.minwidth = minwidth
 
     a.cap = initsize #设定笔迹的点容量为initsize个
-    for i in range(initsize):
-        a._point.append(z_fpoint_s())  #继续添加initsize个数量z_fpoint_s， 重复？
-    return a
 
+    return a
 
 def z_resize_fpoints_array(a, count):
     if (a is None) or count < 0: return
@@ -118,26 +95,6 @@ def z_resize_fpoints_array(a, count):
     a.cap = count
     a.len = min(a.cap, a.len)
     return
-
-
-
-
-def z_fpoint_arraylist_append(l=z_fpoint_arraylist_s(), a=z_fpoint_array_s()):
-    node = z_fpoint_arraylist_node_s()
-    node._a = z_keep_fpoint_array(a)
-    node._n = None
-
-    if (l._first is None):
-        l._first = node
-    else:
-        l._end._n = node
-    l._end = node
-
-#设置笔迹的宽度极限值
-def z_fpoint_arraylist_append_new(max, min):
-    a = z_new_fpoint_array(24, max, min)
-    return a
-
 
 
 def z_auto_increase_fpoints_array(a):
@@ -236,7 +193,6 @@ def z_linewidth(b, e, bwidth, step): #bwidth为笔迹末点的宽度
             w = bwidth - max_dif
     return w
 
-
 def z_insert_point(arr, point):
     if arr is None:
         print("arr is None")
@@ -255,29 +211,26 @@ def z_insert_point(arr, point):
     last_ms = arr.last_ms #获取笔迹末点的时间
     last_point = arr.last_point #获取笔迹末点坐标(x,y)
     t_ms = (cur_ms - last_ms) * 1000 #获取末点和当前点的时间差
-
     distance = z_distance(point, last_point) #获取末点和当前点的距离
 
     if t_ms < 60 or distance < 3: #当distance或t_ms太短时，则不将当前点加入笔迹arr中
         return
-
     if arr.len > 4:
         step = 0.05
     else:
         step = 0.2
+
     bt = z_ipoint_s(last_point, last_ms) #将现有笔迹中最后一点取出充当bt
     et = z_ipoint_s(zp, cur_ms) #当前点
     w = (z_linewidth(bt, et, last_width, step) + last_width) / 2 #计算过度点的宽度
-
-    points = z_new_fpoint_array(51, arr.maxwidth, arr.minwidth) #新建临时笔迹points
-
+    points = z_new_fpoint_array(24, arr.maxwidth, arr.minwidth) #新建临时笔迹points
     tmppoint = arr._point[arr.len - 1] #笔迹arr中的末点
     z_fpoint_add(points, tmppoint) #将笔迹arr中的末点当作笔迹points的头点
+
     if len == 1: #笔迹arr的长度为1时，即存在一个头点
         temp = z_point_s((bt.p.x + et.p.x + 1) / 2, (bt.p.y + et.p.y + 1) / 2) #新建一个中间过渡点
         p = z_fpoint_s(temp, w) #添加过度点的宽度
         z_fpoint_differential_add(points, p) #将过渡点p当作一个点添加到临时笔迹points中
-
         w = p.w
     else: #笔迹arr的长度大于1时
         bw = tmppoint #笔迹arr中的末点（x,y），带有宽度
@@ -287,12 +240,10 @@ def z_insert_point(arr, point):
         z_square_bezier(points, bw, c, ew)  #将过渡点ew当作一个点添加到临时笔迹points中
 
     # escape the first point
-
     for i in range(1, points.len):
         z_fpoint_add(arr, points._point[i]) #将新建的笔迹points添加到笔迹arr中
 
     points = None
-
     z_fpoint_array_set_last_info(arr, point, w) #在笔迹arr中添加最后一个点的坐标，宽度，时间
     return w
 
@@ -304,18 +255,16 @@ def z_insert_last_point(arr, e):
 
     len = arr.len #获得笔迹arr的有效长度
     if len == 0: return
-    points = z_new_fpoint_array(51, arr.maxwidth, arr.minwidth)  #新建临时笔迹points
+
+    points = z_new_fpoint_array(24, arr.maxwidth, arr.minwidth)  #新建临时笔迹points
     last = arr.last_point #获得笔迹arr的末点(x,y)
     lw = arr.last_width  #获得笔迹arr的末点宽度
-
     z_fpoint_add_xyw(points, last.x, last.y, lw) #将末点作为新建笔迹points的头点
-
 
     for i in range(0, points.len):
         z_fpoint_add(arr, points._point[i])  # 将points中的点保存在arr中，  arr为 m_cur_path
 
     points = None
-
 
 def z_fpoint_array_set_last_info(arr=None, last_point=z_point_s(), last_width=0):  # 导入list，出现的问题
     if arr is None: return
